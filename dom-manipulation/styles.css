@@ -1,0 +1,27 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 2rem;
+    background-color: #f4f4f4;
+}
+
+#quoteDisplay {
+    margin: 20px auto;
+    padding: 1rem;
+    background: #fff;
+    border-radius: 8px;
+    max-width: 500px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+input {
+    margin: 0.5rem;
+    padding: 0.5rem;
+    width: 200px;
+}
+
+button {
+    padding: 0.5rem 1rem;
+    margin: 0.5rem;
+    cursor: pointer;
+}
