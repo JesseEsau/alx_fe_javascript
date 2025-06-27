@@ -1,9 +1,14 @@
 // Initial quotes array
-let quotes = [
+let quotes = JSON.parse(localStorage.getItem("quotes")) || [
     { text: "The only limit to our realization of tomorrow is our doubts of today.", category: "Motivation" },
     { text: "Creativity is intelligence having fun.", category: "Inspiration" },
     { text: "Life is what happens when you're busy making other plans.", category: "Life" },
 ];
+
+
+function saveQuotes() {
+    localStorage.setItem("quotes", JSON.stringify(quotes));
+}
 
 // Get DOM element
 const quoteDisplay = document.getElementById("quoteDisplay");
@@ -20,7 +25,11 @@ function showRandomQuote() {
     const quote = quotes[randomIndex];
     quoteDisplay.innerHTML = `<p><strong>Quote:</strong> ${quote.text}</p>
     <p><em>Category:</em> ${quote.category}</p>`;
+
+    // save to sessionStorage
+    sessionStorage.setItem("lastviewedQuote", JSON.stringify(quote));
 }
+
 
 // Function to add a new quote
 function addQuote() {
@@ -33,6 +42,7 @@ function addQuote() {
     }
 
     quotes.push({ text: quoteText, category: quoteCategory });
+    saveQuotes(); // save to localStorage
     document.getElementById("newQuoteText").value = "";
     document.getElementById("newQuoteCategory").value = "";
     alert("Quote added successfully!");
@@ -64,6 +74,45 @@ function createAddQuoteForm() {
     formContainer.appendChild(inputCategory);
     formContainer.appendChild(addButton);
 }
+
+// load last viewes quote from sessionStorage
+const lastViewed = sessionStorage.getItem("lastViewedQuote");
+if (lastViewed) {
+    const quote = JSON.parse(lastViewed);
+    quoteDisplay.innerHTML = `<p><strong>Quote:</strong> ${quote.text}</p>
+    <p><em>Category:</em> ${quote.category}</p>`;
+}
+
+function exportQuotes() {
+    const blob = new Blob([JSON.stringify(quotes, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "quotes.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
+function importFromJsonFile(event) {
+    const fileReader = new FileReader();
+    fileReader.onload = function (e) {
+        try {
+            const importedQuotes = JSON.parse(e.target.result);
+            if (Array.isArray(importedQuotes)) {
+                quotes.push(...importedQuotes);
+                saveQuotes();
+                alert("Quotes imported successfully!");
+            } else {
+                alert("Invalid JSON format.");
+            }
+        } catch (err) {
+            alert("Error importing JSON: " + err.message);
+        }
+    };
+    fileReader.readAsText(event.target.files[0]);
+}
+
 
 // Event listener for button
 newQuoteBtn.addEventListener("click", showRandomQuote);
