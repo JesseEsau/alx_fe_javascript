@@ -10,6 +10,53 @@ function saveQuotes() {
     localStorage.setItem("quotes", JSON.stringify(quotes));
 }
 
+function populateCategories() {
+    const categorySet = new Set(quotes.map(q => q.category));
+    const dropdown = document.getElementById("categoryFilter");
+
+    // Clear current options (except 'All')
+    dropdown.innerHTML = '<option value="all">All Categories</option>';
+
+    categorySet.forEach(category => {
+        const option = document.createElement("option");
+        option.value = category;
+        option.textContent = category;
+        dropdown.appendChild(option);
+    });
+
+    // Restore last selected filter from localStorage
+    const savedFilter = localStorage.getItem("selectedCategory");
+    if (savedFilter) {
+        dropdown.value = savedFilter;
+        filterQuotes(); // Automatically filter
+    }
+}
+
+function filterQuotes() {
+    const selectedCategory = document.getElementById("categoryFilter").value;
+    localStorage.setItem("selectedCategory", selectedCategory);
+
+    const filtered = selectedCategory === "all"
+        ? quotes
+        : quotes.filter(q => q.category === selectedCategory);
+
+    if (filtered.length === 0) {
+        quoteDisplay.innerHTML = "No quotes available in this category.";
+    } else {
+        const randomIndex = Math.floor(Math.random() * filtered.length);
+        const quote = filtered[randomIndex];
+        quoteDisplay.innerHTML = `<p><strong>Quote:</strong> ${quote.text}</p>
+        <p><em>Category:</em> ${quote.category}</p>`;
+    }
+
+    // Also save to sessionStorage
+    if (filtered.length > 0) {
+        sessionStorage.setItem("lastViewedQuote", JSON.stringify(filtered[0]));
+    }
+}
+
+
+
 // Get DOM element
 const quoteDisplay = document.getElementById("quoteDisplay");
 const newQuoteBtn = document.getElementById("newQuote");
@@ -43,6 +90,8 @@ function addQuote() {
 
     quotes.push({ text: quoteText, category: quoteCategory });
     saveQuotes(); // save to localStorage
+    populateCategories(); // update the filter dropdown with the new categories
+
     document.getElementById("newQuoteText").value = "";
     document.getElementById("newQuoteCategory").value = "";
     alert("Quote added successfully!");
@@ -119,3 +168,5 @@ newQuoteBtn.addEventListener("click", showRandomQuote);
 
 // Create form on page load
 createAddQuoteForm();
+// populate filter on load
+populateCategories();
