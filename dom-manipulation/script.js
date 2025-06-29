@@ -58,7 +58,7 @@ function syncQuotes(serverQuotes) {
     if (updated) {
         localStorage.setItem("quotes", JSON.stringify(localQuotes));
         quotes = localQuotes; // update in-memory
-        alert("Quotes synced from server!");
+        alert("Quotes synced with server!");
         displayQuotes(); // your function to re-render
     }
 }
