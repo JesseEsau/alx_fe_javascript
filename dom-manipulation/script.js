@@ -5,7 +5,7 @@ let quotes = JSON.parse(localStorage.getItem("quotes")) || [
     { text: "Life is what happens when you're busy making other plans.", category: "Life" },
 ];
 
-async function fetchServerQuotes() {
+async function fetchQuotesFromServer() {
     try {
         const response = await fetch("https://jsonplaceholder.typicode.com/posts?_limit=5");
         const data = await response.json();
@@ -207,7 +207,7 @@ function importFromJsonFile(event) {
 newQuoteBtn.addEventListener("click", showRandomQuote);
 
 setInterval(fetchServerQuotes, 30000); // every 30 seconds
-fetchServerQuotes(); // also run once at load
+fetchQuotesFromServer(); // also run once at load
 
 
 // Create form on page load
