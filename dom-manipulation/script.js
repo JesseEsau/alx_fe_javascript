@@ -5,6 +5,46 @@ let quotes = JSON.parse(localStorage.getItem("quotes")) || [
     { text: "Life is what happens when you're busy making other plans.", category: "Life" },
 ];
 
+async function fetchServerQuotes() {
+    try {
+        const response = await fetch("https://jsonplaceholder.typicode.com/posts?_limit=5");
+        const data = await response.json();
+
+        // Turn post titles into quote objects
+        const serverQuotes = data.map(post => ({
+            text: post.title,
+            category: "External" // since JSONPlaceholder doesn't have categories
+        }));
+
+        syncWithServer(serverQuotes);
+    } catch (error) {
+        console.error("Failed to fetch from server:", error);
+    }
+}
+
+function syncWithServer(serverQuotes) {
+    let localQuotes = JSON.parse(localStorage.getItem("quotes")) || [];
+    let updated = false;
+
+    serverQuotes.forEach(serverQuote => {
+        const matchIndex = localQuotes.findIndex(
+            local => local.text.toLowerCase() === serverQuote.text.toLowerCase()
+        );
+
+        if (matchIndex === -1) {
+            localQuotes.push(serverQuote); // new quote
+            updated = true;
+        }
+    });
+
+    if (updated) {
+        localStorage.setItem("quotes", JSON.stringify(localQuotes));
+        quotes = localQuotes; // update in-memory
+        alert("Quotes synced from server!");
+        displayQuotes(); // your function to re-render
+    }
+}
+
 
 function saveQuotes() {
     localStorage.setItem("quotes", JSON.stringify(quotes));
@@ -162,63 +202,15 @@ function importFromJsonFile(event) {
     fileReader.readAsText(event.target.files[0]);
 }
 
-function fetchQuotesFromServer() {
-    // Simulate fetched server quotes
-    const serverQuotes = [
-        { text: "Creativity is intelligence having fun.", category: "Inspiration" }, // existing but may change
-        { text: "Success is not in what you have, but who you are.", category: "Motivation" }, // new
-        { text: "Life is short, and it is up to you to make it sweet.", category: "Life" } // new
-    ];
-
-    syncWithServer(serverQuotes);
-}
-
-function syncWithServer(serverQuotes) {
-    let conflicts = 0;
-    let newQuotes = 0;
-
-    serverQuotes.forEach(serverQuote => {
-        const matchIndex = quotes.findIndex(
-            localQuote => localQuote.text.toLowerCase() === serverQuote.text.toLowerCase()
-        );
-
-        if (matchIndex !== -1) {
-            const local = quotes[matchIndex];
-            if (local.category !== serverQuote.category) {
-                // Conflict detected: update category to match server
-                quotes[matchIndex].category = serverQuote.category;
-                conflicts++;
-            }
-        } else {
-            // New quote from server
-            quotes.push(serverQuote);
-            newQuotes++;
-        }
-    });
-
-    saveQuotes();
-    populateCategories();
-
-    // Notify user
-    if (conflicts > 0 || newQuotes > 0) {
-        alert(`🔄 Sync complete:\n${newQuotes} new quote(s) added.\n${conflicts} conflict(s) resolved (server version used).`);
-    } else {
-        console.log("✅ Sync complete: No changes detected.");
-    }
-}
-
-
 
 // Event listener for button
 newQuoteBtn.addEventListener("click", showRandomQuote);
+
+setInterval(fetchServerQuotes, 30000); // every 30 seconds
+fetchServerQuotes(); // also run once at load
+
 
 // Create form on page load
 createAddQuoteForm();
 // populate filter on load
 populateCategories();
-
-// Simulate periodic server sync every 30 seconds
-setInterval(fetchMockServerQuotes, 30000);
-
-// Optional: run once at page load
-fetchQuotesFromServer();
