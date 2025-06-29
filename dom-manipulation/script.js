@@ -162,7 +162,7 @@ function importFromJsonFile(event) {
     fileReader.readAsText(event.target.files[0]);
 }
 
-function fetchMockServerQuotes() {
+function fetchQuotesFromServer() {
     // Simulate fetched server quotes
     const serverQuotes = [
         { text: "Creativity is intelligence having fun.", category: "Inspiration" }, // existing but may change
@@ -221,4 +221,4 @@ populateCategories();
 setInterval(fetchMockServerQuotes, 30000);
 
 // Optional: run once at page load
-fetchMockServerQuotes();
+fetchQuotesFromServer();
