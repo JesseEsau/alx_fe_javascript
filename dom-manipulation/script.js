@@ -40,7 +40,7 @@ async function postQuoteToServer(quote) {
 }
 
 
-function syncWithServer(serverQuotes) {
+function syncQuotes(serverQuotes) {
     let localQuotes = JSON.parse(localStorage.getItem("quotes")) || [];
     let updated = false;
 
