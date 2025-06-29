@@ -22,6 +22,24 @@ async function fetchQuotesFromServer() {
     }
 }
 
+async function postQuoteToServer(quote) {
+    try {
+        const response = await fetch("http://localhost:3000/quotes", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(quote)
+        });
+
+        const savedQuote = await response.json();
+        console.log("✅ Quote posted to server:", savedQuote);
+    } catch (error) {
+        console.error("❌ Failed to post quote:", error);
+    }
+}
+
+
 function syncWithServer(serverQuotes) {
     let localQuotes = JSON.parse(localStorage.getItem("quotes")) || [];
     let updated = false;
@@ -130,6 +148,7 @@ function addQuote() {
 
     quotes.push({ text: quoteText, category: quoteCategory });
     saveQuotes(); // save to localStorage
+    postQuoteToServer(newQuote); // 🆕 Send to server too
     populateCategories(); // update the filter dropdown with the new categories
 
     document.getElementById("newQuoteText").value = "";
